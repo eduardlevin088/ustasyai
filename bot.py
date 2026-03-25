@@ -60,6 +60,18 @@ tools = [
             "required": ["command"]
         },
     },
+    {
+        "type": "function",
+        "name": "launch_app",
+        "description": "Run command in server's terminal to launch a long-run processes",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "command": {"type": "string"}
+            },
+            "required": ["command"]
+        }
+    }
 ]
 
 
@@ -171,6 +183,31 @@ async def echo_handler(message: Message, bot: Bot):
                         )
 
                         output_text = result.stdout + result.stderr
+
+                        next_input += [{
+                            "type": "function_call_output",
+                            "call_id": item.call_id,
+                            "output": output_text
+                        }]
+
+                    if item.name == "launch_app":
+                        args = json.loads(item.arguments)
+
+                        text_command = args["command"][:12]+"..." if len(args["command"]) > 15 else args["command"]
+                        try:
+                            await sent_message.edit_text(f"Launched app: `{await pre_parse(text_command)}`", parse_mode="MarkdownV2")
+                        except Exception as e:
+                            await sent_message.edit_text(f"Launched app: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
+
+                        process = subprocess.Popen(
+                            args["command"],
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            start_new_session=True
+                        )
+
+                        output_text = f"PID {process.pid}"
 
                         next_input += [{
                             "type": "function_call_output",
