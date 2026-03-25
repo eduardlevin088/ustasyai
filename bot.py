@@ -86,7 +86,7 @@ async def start(message: Message, bot: Bot):
     )
         
     try:
-        await message.answer(welcome_message, parse_mode="MarkdownV2")
+        await message.answer(welcome_message, parse_mode="HTML")
     except Exception as e:
         await message.answer(welcome_message + f"\n\nSEQUENCE INTERRUPTED: {e}")
 
@@ -157,7 +157,7 @@ async def echo_handler(message: Message, bot: Bot):
 
         text_to_send = await pre_parse(response.output_text) or "_Getting started..._"
         try:
-            sent_message = await message.answer(text_to_send, parse_mode="MarkdownV2")
+            sent_message = await message.answer(text_to_send, parse_mode="HTML")
         except Exception as e:
             sent_message = await message.answer(text_to_send + f"\n\nSEQUENCE INTERRUPTED: {e}")
         
@@ -171,7 +171,7 @@ async def echo_handler(message: Message, bot: Bot):
 
                         text_command = args["command"][:12]+"..." if len(args["command"]) > 15 else args["command"]
                         try:
-                            await sent_message.edit_text(f"Executed command: `{await pre_parse(text_command)}`", parse_mode="MarkdownV2")
+                            await sent_message.edit_text(f"Executed command: `{await pre_parse(text_command)}`", parse_mode="HTML")
                         except Exception as e:
                             await sent_message.edit_text(f"Executed command: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
 
@@ -195,7 +195,7 @@ async def echo_handler(message: Message, bot: Bot):
 
                         text_command = args["command"][:12]+"..." if len(args["command"]) > 15 else args["command"]
                         try:
-                            await sent_message.edit_text(f"Launched app: `{await pre_parse(text_command)}`", parse_mode="MarkdownV2")
+                            await sent_message.edit_text(f"Launched app: `{await pre_parse(text_command)}`", parse_mode="HTML")
                         except Exception as e:
                             await sent_message.edit_text(f"Launched app: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
 
@@ -226,7 +226,7 @@ async def echo_handler(message: Message, bot: Bot):
 
             text_to_send = await pre_parse(response.output_text) or "_Job finished..._"
             try:
-                await sent_message.edit_text(text_to_send, parse_mode="MarkdownV2")
+                await sent_message.edit_text(text_to_send, parse_mode="HTML")
             except Exception as e:
                 await sent_message.edit_text(text_to_send + f"\n\nSEQUENCE INTERRUPTED: {e}")
         
