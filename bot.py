@@ -98,7 +98,7 @@ async def start(message: Message, bot: Bot):
 
 @dp.message(Command("setrole"))
 async def set_role(message: Message, bot: Bot):
-    user = message.animation
+    user = message.from_user
 
     their_id = int(message.text.split()[1])
     new_role = message.text.split()[2]
