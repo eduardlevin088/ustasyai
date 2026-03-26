@@ -166,7 +166,7 @@ async def echo_handler(message: Message, bot: Bot):
 
         last_response_id = response.id
 
-        text_to_send = response.output_text or "_Getting started..._"
+        text_to_send = response.output_text or "<i>Getting started...</i>"
         try:
             sent_message = await message.answer(text_to_send, parse_mode="HTML")
         except Exception as e:
@@ -182,9 +182,9 @@ async def echo_handler(message: Message, bot: Bot):
 
                         text_command = args["command"][:12]+"..." if len(args["command"]) > 15 else args["command"]
                         try:
-                            await sent_message.edit_text(f"Executed command: `{text_command}`", parse_mode="HTML")
+                            await sent_message.edit_text(f"<i>Executed command:</i> <code>{text_command}</code>", parse_mode="HTML")
                         except Exception as e:
-                            await sent_message.edit_text(f"Executed command: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
+                            await sent_message.edit_text(f"Executed command: {text_command}" + f"\n\nSEQUENCE INTERRUPTED: {e}")
 
                         result = await thread(subprocess.run,
                             args["command"],
@@ -206,9 +206,9 @@ async def echo_handler(message: Message, bot: Bot):
 
                         text_command = args["command"][:12]+"..." if len(args["command"]) > 15 else args["command"]
                         try:
-                            await sent_message.edit_text(f"Launched app: `{text_command}`", parse_mode="HTML")
+                            await sent_message.edit_text(f"<i>Launching app:</i> <code>{text_command}</code>", parse_mode="HTML")
                         except Exception as e:
-                            await sent_message.edit_text(f"Launched app: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
+                            await sent_message.edit_text(f"Launching app: {text_command}" + f"\n\nSEQUENCE INTERRUPTED: {e}")
 
                         process = subprocess.Popen(
                             args["command"],
@@ -231,9 +231,9 @@ async def echo_handler(message: Message, bot: Bot):
 
                         text_command = args["file_path"][:12]+"..." if len(args["file_path"]) > 15 else args["file_path"]
                         try:
-                            await sent_message.edit_text(f"Sending file: `{text_command}`", parse_mode="HTML")
+                            await sent_message.edit_text(f"<i>Sending file:</i> <code>{text_command}</code>", parse_mode="HTML")
                         except Exception as e:
-                            await sent_message.edit_text(f"Sending file: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
+                            await sent_message.edit_text(f"Sending file: {text_command}" + f"\n\nSEQUENCE INTERRUPTED: {e}")
                         
                         await message.answer_document(FSInputFile(args["file_path"]))
 
@@ -254,7 +254,7 @@ async def echo_handler(message: Message, bot: Bot):
 
             last_response_id = response.id
 
-            text_to_send = response.output_text or "_Job finished..._"
+            text_to_send = response.output_text or "<i>Job finished...</i>"
             try:
                 await sent_message.edit_text(text_to_send, parse_mode="HTML")
             except Exception as e:
