@@ -18,7 +18,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT}}
           script: |
-            mkdir -p /root/ustasy
+            mkdir -p /root/ustasyai
             cd /root/ustasy
             git checkout main
             git pull
