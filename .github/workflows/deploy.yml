@@ -19,7 +19,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT}}
           script: |
             mkdir -p /root/ustasyai
-            cd /root/ustasy
+            cd /root/ustasyai
             git checkout main
             git pull
             pkill -f "python bot.py"
