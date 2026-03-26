@@ -228,7 +228,7 @@ async def echo_handler(message: Message, bot: Bot):
                     elif item.name == "send_file_to_chat":
                         args = json.loads(item.arguments)
 
-                        text_command = args["text_command"][:12]+"..." if len(args["text_command"]) > 15 else args["text_command"]
+                        text_command = args["file_path"][:12]+"..." if len(args["file_path"]) > 15 else args["file_path"]
                         try:
                             await sent_message.edit_text(f"Sending file: `{text_command}`", parse_mode="HTML")
                         except Exception as e:
