@@ -18,11 +18,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT}}
           script: |
-            mkdir -p /root/ustasyai
             cd /root/ustasyai
-            git checkout main
-            git pull
-            pkill -f "python bot.py"
-            source .venv/bin/activate
-            pip install -r requirements.txt
-            nohup python bot.py &
+            git fetch origin
+            git reset --hard origin/main
+            systemctl restart ustasyai
