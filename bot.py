@@ -8,7 +8,7 @@ from openai import OpenAI
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
-from aiogram.types import Message, ContentType
+from aiogram.types import Message, ContentType, FSInputFile
 from aiogram.enums import ChatAction
 from aiogram.utils.chat_action import ChatActionSender
 
@@ -18,8 +18,6 @@ from config import GPT_MODEL, GPT_KEY
 from database import init_db, close_db, create_user
 from database import get_users, set_user_role, get_user_role
 from database import get_user_last_response_id, set_user_last_response_id
-
-from miscellaneous import pre_parse
 
 
 logging.basicConfig(level=logging.INFO)
@@ -68,6 +66,18 @@ tools = [
             "type": "object",
             "properties": {
                 "command": {"type": "string"}
+            },
+            "required": ["command"]
+        }
+    },
+    {
+        "type": "function",
+        "name": "send_file_to_chat",
+        "description": "Send file to user directly in chat specifying file's full path",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {"type": "string"}
             },
             "required": ["command"]
         }
@@ -155,7 +165,7 @@ async def echo_handler(message: Message, bot: Bot):
 
         last_response_id = response.id
 
-        text_to_send = await pre_parse(response.output_text) or "_Getting started..._"
+        text_to_send = response.output_text or "_Getting started..._"
         try:
             sent_message = await message.answer(text_to_send, parse_mode="HTML")
         except Exception as e:
@@ -171,7 +181,7 @@ async def echo_handler(message: Message, bot: Bot):
 
                         text_command = args["command"][:12]+"..." if len(args["command"]) > 15 else args["command"]
                         try:
-                            await sent_message.edit_text(f"Executed command: `{await pre_parse(text_command)}`", parse_mode="HTML")
+                            await sent_message.edit_text(f"Executed command: `{text_command}`", parse_mode="HTML")
                         except Exception as e:
                             await sent_message.edit_text(f"Executed command: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
 
@@ -190,12 +200,12 @@ async def echo_handler(message: Message, bot: Bot):
                             "output": output_text
                         }]
 
-                    if item.name == "launch_app":
+                    elif item.name == "launch_app":
                         args = json.loads(item.arguments)
 
                         text_command = args["command"][:12]+"..." if len(args["command"]) > 15 else args["command"]
                         try:
-                            await sent_message.edit_text(f"Launched app: `{await pre_parse(text_command)}`", parse_mode="HTML")
+                            await sent_message.edit_text(f"Launched app: `{text_command}`", parse_mode="HTML")
                         except Exception as e:
                             await sent_message.edit_text(f"Launched app: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
 
@@ -214,6 +224,25 @@ async def echo_handler(message: Message, bot: Bot):
                             "call_id": item.call_id,
                             "output": output_text
                         }]
+                    
+                    elif item.name == "send_file_to_chat":
+                        args = json.loads(item.arguments)
+
+                        text_command = args["text_command"][:12]+"..." if len(args["text_command"]) > 15 else args["text_command"]
+                        try:
+                            await sent_message.edit_text(f"Sending file: `{text_command}`", parse_mode="HTML")
+                        except Exception as e:
+                            await sent_message.edit_text(f"Sending file: `{text_command}`" + f"\n\nSEQUENCE INTERRUPTED: {e}")
+                        
+                        await message.answer_document(FSInputFile(args["file_path"]))
+
+                        output_text = "File sent successfuly"
+
+                        next_input += [{
+                            "type": "function_call_output",
+                            "call_id": item.call_id,
+                            "output": output_text
+                        }]
 
             response = await thread(client.responses.create,
                 model=GPT_MODEL,
@@ -224,7 +253,7 @@ async def echo_handler(message: Message, bot: Bot):
 
             last_response_id = response.id
 
-            text_to_send = await pre_parse(response.output_text) or "_Job finished..._"
+            text_to_send = response.output_text or "_Job finished..._"
             try:
                 await sent_message.edit_text(text_to_send, parse_mode="HTML")
             except Exception as e:
