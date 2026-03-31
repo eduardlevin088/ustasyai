@@ -152,7 +152,6 @@ async def echo_handler(message: Message, bot: Bot):
         agent_input = []
         agent_input += [{"role": "user", "content": message.text}]
         agent_input += [{"role": "system", "content": f"User's username: {user.username}"}]
-        agent_input += [{"role": "system", "content": f"User's role: {user_role}"}]
         
         instructions = main_prompt# if not last_response_id else None
 
