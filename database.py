@@ -32,7 +32,6 @@ async def create_tables():
             user_id INTEGER PRIMARY KEY,
             username TEXT,
             last_response_id TEXT,
-            role TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -99,25 +98,3 @@ async def get_users() -> list[tuple]:
         rows = await cursor.fetchall()
         users = [ (row["username"], row["user_id"], row["role"]) for row in rows]
         return users
-
-
-async def set_user_role(user_id: int, role: str):
-    if db is None:
-        raise RuntimeError("Database not initialized")
-    
-    await db.execute("""
-        UPDATE users SET role = ?
-        WHERE user_id = ?
-    """, (role.upper(), user_id))
-    await db.commit()
-
-
-async def get_user_role(user_id: int) -> str | None:
-    if db is None:
-        raise RuntimeError("Database not initialized")
-    
-    async with db.execute("""
-        SELECT role FROM users WHERE user_id = ?
-    """, (user_id,)) as cursor:
-        row = await cursor.fetchone()
-        return row[0] if row and row[0] else None

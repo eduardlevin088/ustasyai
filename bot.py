@@ -16,7 +16,7 @@ from config import BOT_TOKEN, SUPERADMIN_ID
 from config import GPT_MODEL, GPT_KEY
 
 from database import init_db, close_db, create_user
-from database import get_users, set_user_role, get_user_role
+from database import get_users
 from database import get_user_last_response_id, set_user_last_response_id
 
 
@@ -100,54 +100,13 @@ async def start(message: Message, bot: Bot):
     except Exception as e:
         await message.answer(welcome_message + f"\n\nSEQUENCE INTERRUPTED: {e}")
 
-    await bot.send_message(SUPERADMIN_ID, f"New user | ID {user.id} | USERNAME {user.username}")
-
-    if user.id == SUPERADMIN_ID:
-        await set_user_role(user.id, "CREATOR")
-
-
-@dp.message(Command("setrole"))
-async def set_role(message: Message, bot: Bot):
-    user = message.from_user
-
-    their_id = int(message.text.split()[1])
-    new_role = message.text.split()[2]
-
-    if new_role.upper() not in ["CREATOR", "ADMIN", "DEVELOPER", "USER", "GUEST"]:
-        await message.answer("Misspelled role\n\nList of roles:\nCREATOR\nADMIN\nDEVELOPER\nUSER\nGUEST")
-        return
-
-    their_role = await get_user_role(their_id)
-
-    role = await get_user_role(user.id)
-
-    if role == "ADMIN":
-        if their_role not in ["CREATOR", "ADMIN"] and\
-            new_role != "CREATOR":
-            await set_user_role(their_id, new_role)
-
-            await message.answer("Role updated")
-        else:
-            await message.answer("You as ADMIN can not change ADMIN's or CREATOR's role and can not assign CREATOR")
-    elif role == "CREATOR":
-        await set_user_role(their_id, new_role)
-
-        await message.answer("Role updated")
-    else:
-        await message.answer("Insufficient rights")
-
 
 @dp.message(F.text)
 async def echo_handler(message: Message, bot: Bot):
 
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         user = message.from_user
-        user_role = await get_user_role(user.id)
         last_response_id = await get_user_last_response_id(user.id)
-
-        if not user_role:
-            message.answer("Access to the Agent was not granted")
-            return
         
         agent_input = []
         agent_input += [{"role": "user", "content": message.text}]
